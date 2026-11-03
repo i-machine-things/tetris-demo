@@ -13,7 +13,12 @@ grounded in what actually happened in this repo's history.
 
 ## 1. Create the repo, don't skip the bootstrap commit
 
+`gh repo create --source=.` associates the current directory with a new GitHub repo, but
+it needs that directory to already **be** a git repo — run it before `git init` and it
+fails. Initialize first, then create the remote:
+
 ```bash
+git init -b main
 gh repo create <owner>/<repo> --public --description "..." --source=. --remote=origin
 ```
 
@@ -22,7 +27,6 @@ until `main` exists. So the very first commit[^commit] is a minimal bootstrap (h
 `.gitignore` and a one-line `README.md`), committed and pushed **directly** to `main`:
 
 ```bash
-git init -b main
 git add .gitignore README.md
 git commit -m "chore: initialize repository"
 git push -u origin main
@@ -83,7 +87,17 @@ flags from `ci.yml`:
 python -m pytest tests/ -v
 flake8 --max-line-length=120 --select=E,F --exclude=.git,__pycache__ .
 bandit -r . --exclude ./.git --severity-level medium -q
-QT_QPA_PLATFORM=offscreen python -c "<construct GameWindow, drop a piece, close it>"
+QT_QPA_PLATFORM=offscreen python -c "
+import sys
+from PyQt6.QtWidgets import QApplication
+from tetris.widget import GameWindow
+
+app = QApplication(sys.argv)
+window = GameWindow()
+window.show()
+window.board.hard_drop()
+window.close()
+"
 ```
 
 Catching failures locally is faster than catching them in CI, and it means a pushed

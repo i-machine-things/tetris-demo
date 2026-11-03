@@ -1,10 +1,11 @@
 """Generate docs/TRAINING.pdf from the SECTIONS below.
 
 A plain-language companion to ../TRAINING.md, for readers without a software
-background. Re-run this after editing SECTIONS to regenerate the output:
+background. Re-run this after editing SECTIONS to regenerate the output. From
+the repo root:
 
-    pip install -r requirements.txt
-    python generate_training_docs.py
+    pip install -r docs/requirements.txt
+    python docs/generate_training_docs.py
 """
 
 from pathlib import Path
@@ -66,7 +67,7 @@ SECTIONS = [
     {
         "title": "3. Building Safely, on a Side Copy",
         "bullets": [
-            "All real work happens on a \"branch\" — a parallel, private copy of the project.",
+            "All real work happens on a \"branch\" — a parallel, separate copy of the project.",
             "Nothing on that copy affects the real version until it's explicitly approved and "
             "merged in.",
             "Before asking anyone to look at it, the work is tested locally first, using the "
@@ -142,7 +143,7 @@ SECTIONS = [
         "title": "Glossary",
         "bullets": [
             "Repo — the project's whole folder of files plus its complete history.",
-            "Branch — a private, parallel copy of the project used for one change at a time.",
+            "Branch — a separate, parallel copy of the project used for one change at a time.",
             "Commit — a saved snapshot of a set of changes, with a note on what and why.",
             "Pull Request (PR) — a request to review and merge one branch's changes into another.",
             "Merge — folding an approved branch's changes into the main version for good.",
