@@ -45,3 +45,8 @@ def main():
 ## Python Testing & Imports
 
 - **A bare `pytest` invocation doesn't put the repo root on `sys.path` the way `python -m pytest` does** — if `tests/` has no `__init__.py`, pytest's default import mode prepends `tests/` itself, not the repo root, so `from mypackage import ...` raises `ModuleNotFoundError` even though CI (which sets `PYTHONPATH`) passes fine. Document and run `python -m pytest`, not plain `pytest`. (CodeRabbit, tetris-demo PR #1)
+
+## CodeRabbit Review Process
+
+- **`gh pr checks <n>` showing CodeRabbit as "skipping" doesn't mean the existing review is stale** — CodeRabbit edits its one main summary comment in place on each run rather than posting a new one; "skipping" just means no *new* run happened (often because nothing changed since the last one, not only rate-limiting). Before assuming a re-review is needed, check that comment's `coveredCommitId`/`sourceCommitId` metadata (or its "Merge Risk ... up to `<short-sha>`" line) against the PR's current HEAD — if they match, the existing review already covers everything, findings and all. (tetris-demo PR #1 — several retrigger attempts were wasted on an already-current review before this was caught.)
+- **CodeRabbit's pre-merge "Docstring Coverage" check flags 0% coverage on undocumented functions with cyclomatic complexity ≥ 2.** Not actioned here: this project's style is self-explanatory names plus comments only where the *why* isn't obvious (see `main.py`/`tetris/*.py`), not blanket docstrings — a deliberate choice, not an oversight. (CodeRabbit, tetris-demo PR #1)
