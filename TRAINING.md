@@ -6,6 +6,12 @@ projects for AI-assisted ("vibe-coded") development on GitHub[^github] — repo 
 Tetris game itself is incidental; what matters is the sequence of steps below, each one
 grounded in what actually happened in this repo's history.
 
+> **Not technical, or just want the short version?** A plain-language companion covering
+> the same ground — no code, no jargon left unexplained — is available as a
+> [PDF](docs/TRAINING.pdf) or a [slide deck](docs/TRAINING.pptx). Both are generated from
+> `docs/generate_training_docs.py`; re-run it after editing that file's `SECTIONS` to
+> regenerate them.
+
 ## 1. Create the repo, don't skip the bootstrap commit
 
 ```bash
