@@ -41,6 +41,7 @@ def main():
 - **Set `permissions: contents: read` at the workflow's top level** unless a job genuinely needs more — the default `GITHUB_TOKEN` scope is broader than most CI jobs require. (CodeRabbit, tetris-demo PR #1)
 - **When counting commits since the last release tag, match only `v*` tags** (`git describe --tags --match "v*" --abbrev=0`) and handle the no-tag-yet case explicitly (fall back to the full log) — an unfiltered `git describe --tags` can pick up a non-release tag. (tetris-demo PR #1)
 - **Don't claim a tag push "triggers a release workflow" in rules/docs unless that workflow actually exists in the repo** — tagging can be a pure versioning convention with zero automation behind it. (tetris-demo PR #1)
+- **CodeRabbit isn't a job "defined in" `.github/workflows/ci.yml`** — it's a separate GitHub App that reviews PRs on its own, independent of anything in that workflow file. When describing the required checks on a PR, name the workflow's actual jobs (lint, tests, build, ...) separately from CodeRabbit rather than implying the YAML defines all of them. (CodeRabbit, tetris-demo PR #2)
 
 ## Python Testing & Imports
 

@@ -80,7 +80,7 @@ Before pushing, everything CI would check was run locally first, matching the ex
 flags from `ci.yml`:
 
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 flake8 --max-line-length=120 --select=E,F --exclude=.git,__pycache__ .
 bandit -r . --exclude ./.git --severity-level medium -q
 QT_QPA_PLATFORM=offscreen python -c "<construct GameWindow, drop a piece, close it>"
@@ -97,11 +97,12 @@ gh pr create --base main --head feat/pyqt6-tetris-scaffold --title "..." --body 
 ```
 
 [PR #1](https://github.com/i-machine-things/tetris-demo/pull/1) carries four required
-checks, all defined in `.github/workflows/ci.yml`: **Lint & Security** (flake8[^lint] +
-bandit[^security-scanner]), **Tests** (pytest[^test-runner]), **Build** (the headless[^headless]
-smoke test), plus **CodeRabbit**[^coderabbit] as an automated reviewer. Per
-`.claude/CLAUDE.md` Rule 5, none of these is optional — merging only happens once all of
-them are green.
+checks. Three are jobs defined in `.github/workflows/ci.yml`: **Lint & Security** (flake8[^lint] +
+bandit[^security-scanner]), **Tests** (pytest[^test-runner]), and **Build** (the headless[^headless]
+smoke test). The fourth, **CodeRabbit**[^coderabbit], isn't part of that workflow file at
+all — it's a separate automated reviewer that runs on the PR directly, as its own GitHub
+App. Per `.claude/CLAUDE.md` Rule 5, none of the four is optional — merging only happens
+once all are green.
 
 ## 5. The review loop: fix findings, log them, re-verify
 
