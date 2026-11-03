@@ -102,7 +102,10 @@ Tag releases using `vMAJOR.MINOR.PATCH`:
 - **MINOR** — new features that do not break existing functionality
 - **PATCH** — bug fixes, typo corrections, minor improvements
 
-There is no automated release workflow in this repo — tagging is a manual versioning convention only. PRs are gated by `.github/workflows/ci.yml` — do not tag until all CI jobs are green on main.
+Pushing a `v*` tag to `main` triggers `.github/workflows/release.yml`, which builds a
+standalone Windows executable (`TetrisDemo.exe`, via PyInstaller) on a `windows-latest`
+runner and attaches it to a GitHub Release matching the tag. PRs are gated by
+`.github/workflows/ci.yml` — do not tag until all CI jobs are green on main.
 
 **To cut a release:**
 ```bash
@@ -110,7 +113,10 @@ git tag v1.2.3
 git push origin v1.2.3
 ```
 
-**Note:** Only tag from `main`.
+**Note:** Only tag from `main`. Pushing a tag publishes a Release immediately — there is
+no rehearsal/dry-run step, so confirm the build works (`pyinstaller --onefile --windowed
+--name TetrisDemo main.py`, then actually run the resulting `.exe`) before tagging if
+`main.py` or its dependencies changed.
 
 ### Automatic Version Bump Triggers
 
