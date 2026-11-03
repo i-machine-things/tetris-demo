@@ -1,7 +1,7 @@
 # Training: the vibe-coding + GitHub workflow
 
-This repo exists to demonstrate, end to end, the process used across this account's
-projects for AI-assisted ("vibe-coded") development on GitHub — repo setup, the shared
+This repo[^repo] exists to demonstrate, end to end, the process used across this account's
+projects for AI-assisted ("vibe-coded") development on GitHub[^github] — repo setup, the shared
 `.claude` template, branch/PR discipline, automated review, and release tagging. The
 Tetris game itself is incidental; what matters is the sequence of steps below, each one
 grounded in what actually happened in this repo's history.
@@ -12,8 +12,8 @@ grounded in what actually happened in this repo's history.
 gh repo create <owner>/<repo> --public --description "..." --source=. --remote=origin
 ```
 
-A brand-new GitHub repo has no branches at all — you can't open a PR against `main`
-until `main` exists. So the very first commit is a minimal bootstrap (here: just
+A brand-new GitHub repo has no branches[^branch] at all — you can't open a PR[^pr] against `main`
+until `main` exists. So the very first commit[^commit] is a minimal bootstrap (here: just
 `.gitignore` and a one-line `README.md`), committed and pushed **directly** to `main`:
 
 ```bash
@@ -29,7 +29,7 @@ Every commit after this point goes through a feature branch and a PR — see Rul
 
 ## 2. Clone and adapt the shared `.claude` template
 
-The account keeps a template repo (`i-machine-things/.claude`) with the rules every
+The account keeps a template repo[^template] (`i-machine-things/.claude`) with the rules every
 project should start from: `CLAUDE.md` (the AI-assistant rulebook), `CODING_NOTES.md`
 (accumulated best-practice notes, doubling as the findings log — see below), and a
 generic `.github/workflows/ci.yml`.
@@ -84,7 +84,7 @@ QT_QPA_PLATFORM=offscreen python -c "<construct GameWindow, drop a piece, close 
 Catching failures locally is faster than catching them in CI, and it means a pushed
 branch should pass on the first try.
 
-## 4. Open the PR, let CI gate it
+## 4. Open the PR, let CI[^ci] gate it
 
 ```bash
 git push -u origin feat/pyqt6-tetris-scaffold
@@ -92,10 +92,11 @@ gh pr create --base main --head feat/pyqt6-tetris-scaffold --title "..." --body 
 ```
 
 [PR #1](https://github.com/i-machine-things/tetris-demo/pull/1) carries four required
-checks, all defined in `.github/workflows/ci.yml`: **Lint & Security** (flake8 +
-bandit), **Tests** (pytest), **Build** (the headless smoke test), plus **CodeRabbit**
-as an automated reviewer. Per `.claude/CLAUDE.md` Rule 5, none of these is optional —
-merging only happens once all of them are green.
+checks, all defined in `.github/workflows/ci.yml`: **Lint & Security** (flake8[^lint] +
+bandit[^security-scanner]), **Tests** (pytest[^test-runner]), **Build** (the headless[^headless]
+smoke test), plus **CodeRabbit**[^coderabbit] as an automated reviewer. Per
+`.claude/CLAUDE.md` Rule 5, none of these is optional — merging only happens once all of
+them are green.
 
 ## 5. The review loop: fix findings, log them, re-verify
 
@@ -108,7 +109,7 @@ CodeRabbit's first pass on PR #1 came back with 7 findings — 1 major, 6 minor:
 | `main.py` scheduled `deleteLater()`/`processEvents()` **after** `app.exec()` had already returned | trimmed — `closeEvent` already handles cleanup while the loop is live |
 | `CODING_NOTES.md`'s own example had the same deferred-deletion timing bug | moved `deleteLater()` into the `closeEvent` example |
 | `CODING_NOTES.md` presented `bootloader_ignore_signals=True` as generic advice | scoped the note to when a supervisor process actually needs it |
-| CI workflow had no `permissions:` block | added `permissions: contents: read` |
+| CI workflow had no `permissions:`[^token] block | added `permissions: contents: read` |
 | `CLAUDE.md` claimed tagging triggers a release workflow that doesn't exist | corrected the claim and fixed the version-bump-count command to match only `v*` tags |
 
 Two of those findings (`CODING_NOTES.md`, `CLAUDE.md`) were bugs in the *template
@@ -126,7 +127,7 @@ The fix-and-log loop, per Rule 5:
    finding, with a short citation (`(CodeRabbit, PR #1)`), so the next review (human or
    AI) has the context instead of rediscovering the same issue.
 4. Push, and because CodeRabbit's free tier caps included reviews at one per hour, wait
-   out the rate-limit window before re-triggering with `gh pr comment <n> --body
+   out the rate-limit[^rate-limit] window before re-triggering with `gh pr comment <n> --body
    "@coderabbitai review"` rather than merging on an unreviewed diff. `.claude/CLAUDE.md`
    has the exact rule for this (check the comment for "Rate limit exceeded", compute the
    UTC clear time, wait 5 extra minutes for clock drift).
@@ -138,14 +139,14 @@ On this PR, writing the actual feature (`tetris/board.py`, `tetris/widget.py`, `
 tests, CI config) took well under an hour. Getting it merge-clean took considerably
 longer: three separate CodeRabbit passes (a 7-finding first review, a follow-up that
 caught the `S&P.md`/`CODING_NOTES.md` drift described in step 2, and a third that caught
-a real `ModuleNotFoundError` bug in the README's own test instructions), each gated by a
+a real `ModuleNotFoundError`[^module-error] bug in the README's own test instructions), each gated by a
 ~1-hour rate-limit window on the free review tier. Development was the fast part; review,
 fix, re-verify, wait-for-rate-limit, repeat was the slow part — and every one of those
 rounds caught something a human or CI alone would have missed or shipped anyway. Don't
 estimate a task's timeline as "time to write the code" — the QC loop is not overhead
 bolted onto the real work, it *is* part of the real work, and it can dominate the clock.
 
-## 6. Merge — and keep the branch
+## 6. Merge[^merge] — and keep the branch
 
 ```bash
 gh pr merge <n> --merge
@@ -155,9 +156,9 @@ Deliberately **no** `--delete-branch`. Branches are kept after merge as a paper 
 cheap to keep, and useful later for "what exact commits made up this change" without
 digging through squashed history.
 
-## 7. Tag the release
+## 7. Tag[^tag] the release
 
-Per Rule 4 in `.claude/CLAUDE.md`, releases are tagged `vMAJOR.MINOR.PATCH`, manually,
+Per Rule 4 in `.claude/CLAUDE.md`, releases are tagged `vMAJOR.MINOR.PATCH`[^semver], manually,
 only from `main`, only once CI is green on `main`:
 
 ```bash
@@ -188,3 +189,29 @@ special case for "it's just docs."
       `.claude/CODING_NOTES.md`.
 - [ ] Merge without deleting the branch.
 - [ ] Tag releases manually from `main` per semver, only once green.
+
+---
+
+## Footnotes
+
+Plain-language definitions for the technical shorthand used above, for anyone reading
+this without a software background.
+
+[^repo]: **Repository ("repo")** — the project's whole folder of files plus its complete edit history, tracked by Git and hosted on GitHub.
+[^github]: **Git vs. GitHub** — Git is the version-control software that tracks every change to a project's files, on your own computer. GitHub is a website that hosts Git repositories online and adds collaboration tools (pull requests, automated checks, etc.) on top.
+[^branch]: **Branch** — a parallel, separate copy of the project's files where changes can be made without touching the main version until they're explicitly merged back in.
+[^pr]: **Pull request ("PR")** — a request, opened on GitHub, to merge one branch's changes into another. It's the mechanism that makes review possible before changes become permanent.
+[^commit]: **Commit** — a saved snapshot of a set of changes, with a short message describing what changed and why.
+[^template]: **Template repo** — a starter repository other projects copy their initial setup from (shared rules, CI config, etc.), instead of rebuilding that setup from scratch every time.
+[^ci]: **CI (Continuous Integration)** — automated checks (tests, style checks, security scans, etc.) that run every time code is pushed, to catch problems before they're merged.
+[^lint]: **Linter** — a tool that scans code for style issues and simple mistakes (e.g. unused variables) without actually running the program.
+[^security-scanner]: **Security scanner** — a tool that scans code for common security mistakes, again without running the program.
+[^test-runner]: **Test runner** — a tool that automatically runs small, automated checks ("tests") confirming pieces of the code behave the way they're supposed to.
+[^headless]: **Headless** — running a program that would normally show a window, but with no actual screen attached. Lets an automated server (which has no monitor) still exercise GUI code.
+[^coderabbit]: **CodeRabbit** — an AI tool that automatically reviews pull requests and leaves comments on potential bugs or problems, similar to what a human reviewer would do.
+[^rate-limit]: **Rate limit** — a cap on how often a service can be used in a given stretch of time. CodeRabbit's free plan allows one full review per hour.
+[^merge]: **Merge** — combining one branch's changes into another branch (here, into `main`) so they become a permanent part of the project's history.
+[^tag]: **Tag** — a permanent label attached to one specific point in the project's history, typically used to mark a released version.
+[^semver]: **Semantic versioning ("semver")** — a version-numbering convention, `MAJOR.MINOR.PATCH`, where each part increasing signals a different kind of change: breaking, new feature, or bug fix.
+[^token]: **`GITHUB_TOKEN` / permissions** — GitHub automatically hands each automated workflow run a temporary credential (`GITHUB_TOKEN`) so it can access the repo. Restricting its permissions limits the damage if something in that workflow ever goes wrong.
+[^module-error]: **`ModuleNotFoundError`** — a Python error meaning the program couldn't find a piece of code it was told to import. Often caused by *how* or *where* the program was started, not an actually-missing file.
