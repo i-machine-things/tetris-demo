@@ -31,8 +31,8 @@ Every commit after this point goes through a feature branch and a PR — see Rul
 
 The account keeps a template repo (`i-machine-things/.claude`) with the rules every
 project should start from: `CLAUDE.md` (the AI-assistant rulebook), `CODING_NOTES.md`
-(accumulated best-practice notes), `S&P.md` (an empty findings log), and a generic
-`.github/workflows/ci.yml`.
+(accumulated best-practice notes, doubling as the findings log — see below), and a
+generic `.github/workflows/ci.yml`.
 
 Cloning it isn't a blind copy — each file gets adapted to the actual project:
 
@@ -42,13 +42,24 @@ Cloning it isn't a blind copy — each file gets adapted to the actual project:
   Also swapped every `master` reference for `main`, since that's this repo's default
   branch (the template was originally written assuming `master`).
 - **`CODING_NOTES.md`**: kept as-is at first — its PyQt6 resource-cleanup notes applied
-  directly to this project. (It later needed two corrections; see step 5.)
-- **`S&P.md`**: started empty, as intended — it's a log that fills up over the
-  project's life, not something to pre-populate.
+  directly to this project. (It later needed corrections; see step 5.)
 - **`.github/workflows/ci.yml`**: adapted the lint/test/build skeleton to this stack —
   added `libegl1`/`libgl1` system packages and `QT_QPA_PLATFORM=offscreen` for PyQt6,
   and replaced the build job's placeholder with a real headless smoke test (construct
   the game window, run one drop cycle, close it) since this demo has no packaging step.
+
+**The template repo itself was stale, and only direct correction caught it.** The
+clone initially included a separate `S&P.md` — an empty "Standards & Practices" findings
+log, which is what the template's own `CLAUDE.md` pointed to for logging review
+findings. But current, actively-used repos on this account (JobDocs, shop-schedule) had
+already folded that role into `CODING_NOTES.md` itself — topic-grouped notes with inline
+citations like `(CodeRabbit, PR #341)`, no separate dated log file. `S&P.md` was removed,
+its content migrated into the relevant `CODING_NOTES.md` topics, and every `CLAUDE.md`
+reference to it rewritten to point at `CODING_NOTES.md` instead (see
+[PR #1](https://github.com/i-machine-things/tetris-demo/pull/1)'s follow-up commit).
+Lesson: a shared template is a starting point someone wrote at some point, not a live
+source of truth — cross-check it against how current projects actually work, and expect
+to correct it when they've drifted apart.
 
 ## 3. Build on a feature branch, verify locally before pushing
 
@@ -103,14 +114,17 @@ CodeRabbit's first pass on PR #1 came back with 7 findings — 1 major, 6 minor:
 Two of those findings (`CODING_NOTES.md`, `CLAUDE.md`) were bugs in the *template
 content itself*, inherited verbatim at clone time — proof that cloning a template
 isn't a one-time, trust-it-and-move-on step. Review catches issues in your rules files
-exactly like it catches issues in your code.
+exactly like it catches issues in your code — and so can direct human correction, as
+with the separate `S&P.md` mistake described above, caught by the user rather than a
+review tool.
 
 The fix-and-log loop, per Rule 5:
 
 1. Read every finding before touching anything else.
 2. Fix what's actionable, in the same PR, on the same branch.
-3. Append each finding — and its resolution — to `.claude/S&P.md`, so the next review
-   (human or AI) has the context instead of rediscovering the same issue.
+3. Add or amend a note under the relevant topic in `.claude/CODING_NOTES.md` for each
+   finding, with a short citation (`(CodeRabbit, PR #1)`), so the next review (human or
+   AI) has the context instead of rediscovering the same issue.
 4. Push, and because CodeRabbit's free tier caps included reviews at one per hour, wait
    out the rate-limit window before re-triggering with `gh pr comment <n> --body
    "@coderabbitai review"` rather than merging on an unreviewed diff. `.claude/CLAUDE.md`
@@ -157,6 +171,7 @@ special case for "it's just docs."
       specifics) — don't just drop the files in.
 - [ ] Verify locally with the same commands CI runs before pushing.
 - [ ] Open a PR; treat all CI jobs plus CodeRabbit as required, not advisory.
-- [ ] Fix every review finding or log why not; append to `.claude/S&P.md`.
+- [ ] Fix every review finding or log why not; note it under the relevant topic in
+      `.claude/CODING_NOTES.md`.
 - [ ] Merge without deleting the branch.
 - [ ] Tag releases manually from `main` per semver, only once green.
