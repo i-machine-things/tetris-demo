@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   # ---------------------------------------------------------------------------
   # Lint — flake8 (errors + undefined names) and bandit (medium/high severity)

@@ -44,6 +44,7 @@ class GameWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Tetris Demo")
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         self.board = Board()
         self.board_widget = BoardWidget(self.board)
@@ -91,10 +92,16 @@ class GameWindow(QMainWindow):
         if self.board.game_over:
             self.status_label.setText("Game over")
 
+    def showEvent(self, event):  # noqa: N802 - Qt override
+        super().showEvent(event)
+        self.setFocus()
+
     def keyPressEvent(self, event: QKeyEvent):  # noqa: N802 - Qt override
         if self.board.game_over:
             return
         key = event.key()
+        if event.isAutoRepeat() and key in (Qt.Key.Key_P, Qt.Key.Key_Space):
+            return  # pause/hard-drop are one-shot; don't retrigger on a held key
         if key == Qt.Key.Key_P:
             self.paused = not self.paused
             self.status_label.setText("Paused" if self.paused else "")

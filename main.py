@@ -9,12 +9,7 @@ def main():
     app = QApplication(sys.argv)
     window = GameWindow()
     window.show()
-
-    exit_code = app.exec()
-
-    window.deleteLater()
-    app.processEvents()
-    sys.exit(exit_code)
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

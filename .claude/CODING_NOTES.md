@@ -8,8 +8,9 @@
 
 1. **GUI Applications (PyQt, Tkinter, etc.)**
    - Implement `closeEvent()` handler to cleanup resources on window close
-   - Call `deleteLater()` on widgets to ensure proper Qt object cleanup
-   - Process pending events with `app.processEvents()` before exit
+   - Call `deleteLater()` on widgets from `closeEvent()`/`aboutToQuit` — while the event loop is still
+     running, so the deferred-delete event actually gets processed. Calling it after `app.exec()` has
+     already returned is unreliable; don't rely on a trailing `app.processEvents()` to make up for it.
 
 2. **File Handling**
    - Use context managers (`with` statements) for file operations
@@ -44,7 +45,8 @@ def closeEvent(self, event):
     # Save state
     self.save_settings()
 
-    # Accept close event
+    # Schedule deletion now, while the event loop is still running.
+    self.deleteLater()
     event.accept()
     QApplication.quit()
 
@@ -53,22 +55,22 @@ def main():
     window = MainWindow()
     window.show()
 
-    exit_code = app.exec()
-
-    # Final cleanup
-    window.deleteLater()
-    app.processEvents()
+    exit_code = app.exec()  # returns once the window above has closed and scheduled its own cleanup
 
     sys.exit(exit_code)
 ```
 
 ### PyInstaller Specific:
 
-In `.spec` file, add:
+`bootloader_ignore_signals=True` makes the bootloader stop forwarding OS signals (e.g. SIGTERM) to the
+packaged app — only relevant if a supervisor or parent process group sends signals to manage shutdown.
+It is not a general-purpose cleanup fix; if you set it, verify shutdown still behaves correctly under
+that supervisor (e.g. the app still exits when asked, and your `closeEvent`/cleanup still runs).
+
 ```python
 exe = EXE(
     ...
-    bootloader_ignore_signals=True,  # Better cleanup handling
+    bootloader_ignore_signals=True,
     ...
 )
 ```

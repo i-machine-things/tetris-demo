@@ -100,7 +100,7 @@ Tag releases using `vMAJOR.MINOR.PATCH`:
 - **MINOR** — new features that do not break existing functionality
 - **PATCH** — bug fixes, typo corrections, minor improvements
 
-Pushing a `v*` tag to `main` triggers the release workflow. PRs are gated by `.github/workflows/ci.yml` — do not tag until all CI jobs are green on main.
+There is no automated release workflow in this repo — tagging is a manual versioning convention only. PRs are gated by `.github/workflows/ci.yml` — do not tag until all CI jobs are green on main.
 
 **To cut a release:**
 ```bash
@@ -115,7 +115,12 @@ git push origin v1.2.3
 After every merge to `main`, count commits since the last `v*` tag:
 
 ```bash
-git log $(git describe --tags --abbrev=0)..main --oneline
+last_tag=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null)
+if [ -z "$last_tag" ]; then
+  git log --oneline  # no v* tag yet — count from the first commit
+else
+  git log "$last_tag"..main --oneline
+fi
 ```
 
 Count by type:
