@@ -125,6 +125,8 @@ class Board:
         self.lock()
 
     def lock(self):
+        if self.game_over:
+            return
         for x, y in self.current.occupied_cells():
             if y < 0:
                 self.game_over = True

@@ -59,3 +59,27 @@ def test_game_over_when_spawn_blocked():
     board.lock()
 
     assert board.game_over is True
+
+
+def test_lock_is_noop_after_game_over():
+    board = Board(width=6, height=6)
+    for y in (0, 1):
+        for x in range(board.width - 1):
+            board.grid[y][x] = "I"
+
+    board.current = Piece("O", x=-1, y=board.height - 2)  # locks harmlessly at the bottom
+    board.next_piece = Piece("O", x=2, y=0)  # collides with the blocked spawn area
+    board.lock()
+    assert board.game_over is True
+
+    grid_snapshot = [row[:] for row in board.grid]
+    current_snapshot = board.current
+    score_snapshot = board.score
+    lines_snapshot = board.lines_cleared
+
+    board.hard_drop()  # a caller that doesn't check game_over first shouldn't mutate the board
+
+    assert board.grid == grid_snapshot
+    assert board.current is current_snapshot
+    assert board.score == score_snapshot
+    assert board.lines_cleared == lines_snapshot
