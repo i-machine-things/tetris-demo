@@ -132,6 +132,19 @@ The fix-and-log loop, per Rule 5:
    UTC clear time, wait 5 extra minutes for clock drift).
 5. Only merge once CI and the review are both clean.
 
+### Budget for QC taking as long as the build — often longer
+
+On this PR, writing the actual feature (`tetris/board.py`, `tetris/widget.py`, `main.py`,
+tests, CI config) took well under an hour. Getting it merge-clean took considerably
+longer: three separate CodeRabbit passes (a 7-finding first review, a follow-up that
+caught the `S&P.md`/`CODING_NOTES.md` drift described in step 2, and a third that caught
+a real `ModuleNotFoundError` bug in the README's own test instructions), each gated by a
+~1-hour rate-limit window on the free review tier. Development was the fast part; review,
+fix, re-verify, wait-for-rate-limit, repeat was the slow part — and every one of those
+rounds caught something a human or CI alone would have missed or shipped anyway. Don't
+estimate a task's timeline as "time to write the code" — the QC loop is not overhead
+bolted onto the real work, it *is* part of the real work, and it can dominate the clock.
+
 ## 6. Merge — and keep the branch
 
 ```bash
