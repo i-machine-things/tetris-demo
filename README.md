@@ -2,6 +2,8 @@
 
 A single-player Tetris clone built with PyQt6.
 
+![Tetris Demo gameplay screenshot](docs/images/screenshot.png)
+
 ## Running
 
 ```bash
