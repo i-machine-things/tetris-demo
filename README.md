@@ -30,5 +30,5 @@ python main.py
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-pytest tests/ -v
+python -m pytest tests/ -v
 ```

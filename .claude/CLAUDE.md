@@ -85,7 +85,9 @@ Rules:
 
 Before pushing any commit that touches core logic:
 
-1. Run `pytest tests/ -v` — all tests must pass.
+1. Run `python -m pytest tests/ -v` — all tests must pass. (Use `-m pytest`, not a bare `pytest`
+   invocation — `tests/` has no `__init__.py`, so plain `pytest` won't put the repo root on
+   `sys.path` and `from tetris.board import ...` fails with `ModuleNotFoundError`.)
 2. If you touched `tetris/widget.py`, run a headless smoke test under `QT_QPA_PLATFORM=offscreen` (construct `GameWindow`, drive a drop, close it) — mirrors the CI `build` job.
 3. If you changed any config or workflow files, verify the syntax is valid.
 

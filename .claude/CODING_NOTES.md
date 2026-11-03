@@ -41,3 +41,7 @@ def main():
 - **Set `permissions: contents: read` at the workflow's top level** unless a job genuinely needs more — the default `GITHUB_TOKEN` scope is broader than most CI jobs require. (CodeRabbit, tetris-demo PR #1)
 - **When counting commits since the last release tag, match only `v*` tags** (`git describe --tags --match "v*" --abbrev=0`) and handle the no-tag-yet case explicitly (fall back to the full log) — an unfiltered `git describe --tags` can pick up a non-release tag. (tetris-demo PR #1)
 - **Don't claim a tag push "triggers a release workflow" in rules/docs unless that workflow actually exists in the repo** — tagging can be a pure versioning convention with zero automation behind it. (tetris-demo PR #1)
+
+## Python Testing & Imports
+
+- **A bare `pytest` invocation doesn't put the repo root on `sys.path` the way `python -m pytest` does** — if `tests/` has no `__init__.py`, pytest's default import mode prepends `tests/` itself, not the repo root, so `from mypackage import ...` raises `ModuleNotFoundError` even though CI (which sets `PYTHONPATH`) passes fine. Document and run `python -m pytest`, not plain `pytest`. (CodeRabbit, tetris-demo PR #1)
