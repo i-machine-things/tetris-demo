@@ -1,6 +1,6 @@
 # Coding Best Practices & Reminders
 
-> **Style rule:** Notes must be clear and concise — 300 characters or less each. Group by topic, not by date. Whenever a PR review (CodeRabbit or human) catches a mistake, add or amend a note here right away so it isn't repeated.
+> **Style rule:** Notes must be clear and concise — no filler, no restating the obvious — but long enough to carry the actual lesson: what went wrong, why, and the fix. A one-line rule without that context gets re-broken the next time someone hits a similar case. Group by topic, not by date. Whenever a PR review (CodeRabbit or human) catches a mistake, add or amend a note here right away so it isn't repeated.
 
 ## Resource Cleanup (PyQt6)
 
