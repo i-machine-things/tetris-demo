@@ -1,7 +1,7 @@
-"""Generate docs/TRAINING.pdf and docs/TRAINING.pptx from the SECTIONS below.
+"""Generate docs/TRAINING.pdf from the SECTIONS below.
 
 A plain-language companion to ../TRAINING.md, for readers without a software
-background. Re-run this after editing SECTIONS to regenerate both outputs:
+background. Re-run this after editing SECTIONS to regenerate the output:
 
     pip install -r requirements.txt
     python generate_training_docs.py
@@ -9,8 +9,6 @@ background. Re-run this after editing SECTIONS to regenerate both outputs:
 
 from pathlib import Path
 
-from pptx import Presentation
-from pptx.util import Inches, Pt
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -28,7 +26,7 @@ HERE = Path(__file__).parent
 SCREENSHOT = HERE / "images" / "screenshot.png"
 TITLE = "How We Build Software Here"
 SUBTITLE = "A plain-language walkthrough, using the Tetris demo project as the real example"
-ACCENT = "1B3A4B"  # dark teal, hex without '#' for pptx RGBColor convenience
+ACCENT = "1B3A4B"  # dark teal, hex without '#'
 
 SECTIONS = [
     {
@@ -203,55 +201,9 @@ def build_pdf(output_path: Path) -> None:
     doc.build(story)
 
 
-def build_pptx(output_path: Path) -> None:
-    prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
-    accent = tuple(int(ACCENT[i:i + 2], 16) for i in (0, 2, 4))
-
-    from pptx.dml.color import RGBColor
-
-    title_layout = prs.slide_layouts[0]
-    content_layout = prs.slide_layouts[1]
-
-    title_slide = prs.slides.add_slide(title_layout)
-    title_slide.shapes.title.text = TITLE
-    title_slide.shapes.title.text_frame.paragraphs[0].font.color.rgb = RGBColor(*accent)
-    title_slide.placeholders[1].text = SUBTITLE
-
-    for section in SECTIONS:
-        slide = prs.slides.add_slide(content_layout)
-        slide.shapes.title.text = section["title"]
-        slide.shapes.title.text_frame.paragraphs[0].font.color.rgb = RGBColor(*accent)
-
-        body = slide.placeholders[1]
-        tf = body.text_frame
-        tf.word_wrap = True
-        for i, bullet in enumerate(section["bullets"]):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            p.text = bullet
-            p.font.size = Pt(18)
-            p.level = 0
-
-        if "image" in section and section["image"].exists():
-            body.width = Inches(7.2)
-            img_width = Inches(3.6)
-            img_height = img_width * (530 / 523)
-            slide.shapes.add_picture(
-                str(section["image"]),
-                left=Inches(9.0),
-                top=Inches(1.6),
-                width=img_width,
-                height=img_height,
-            )
-
-    prs.save(str(output_path))
-
-
 def main():
     build_pdf(HERE / "TRAINING.pdf")
-    build_pptx(HERE / "TRAINING.pptx")
-    print("Wrote docs/TRAINING.pdf and docs/TRAINING.pptx")
+    print("Wrote docs/TRAINING.pdf")
 
 
 if __name__ == "__main__":

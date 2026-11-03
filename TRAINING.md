@@ -8,9 +8,8 @@ grounded in what actually happened in this repo's history.
 
 > **Not technical, or just want the short version?** A plain-language companion covering
 > the same ground — no code, no jargon left unexplained — is available as a
-> [PDF](docs/TRAINING.pdf) or a [slide deck](docs/TRAINING.pptx). Both are generated from
-> `docs/generate_training_docs.py`; re-run it after editing that file's `SECTIONS` to
-> regenerate them.
+> [PDF](docs/TRAINING.pdf), generated from `docs/generate_training_docs.py`; re-run it
+> after editing that file's `SECTIONS` to regenerate it.
 
 ## 1. Create the repo, don't skip the bootstrap commit
 
