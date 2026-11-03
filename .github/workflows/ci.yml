@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint — flake8 (errors + undefined names) and bandit (medium/high severity)
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint & Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install tools
+        run: pip install flake8 bandit
+
+      - name: flake8
+        run: |
+          flake8 \
+            --max-line-length=120 \
+            --select=E,F \
+            --exclude=.git,__pycache__ \
+            .
+
+      - name: bandit
+        run: |
+          bandit -r . \
+            --exclude ./.git \
+            --severity-level medium \
+            -q
+
+  # ---------------------------------------------------------------------------
+  # Tests — game logic in tetris/board.py has no Qt dependency, but PyQt6
+  # still needs to import cleanly, so the offscreen platform + GL libs are
+  # set up regardless.
+  # ---------------------------------------------------------------------------
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install system libraries
+        run: sudo apt-get update -qq && sudo apt-get install -y libegl1 libgl1
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests
+        env:
+          PYTHONPATH: .
+          QT_QPA_PLATFORM: offscreen
+        run: pytest tests/ -v
+
+  # ---------------------------------------------------------------------------
+  # Build — headless smoke test: construct the main window and run one drop
+  # cycle under the offscreen platform. No packaging yet for this demo.
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install system libraries
+        run: sudo apt-get update -qq && sudo apt-get install -y libegl1 libgl1
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Smoke test the game window
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python -c "
+          import sys
+          from PyQt6.QtWidgets import QApplication
+          from tetris.widget import GameWindow
+
+          app = QApplication(sys.argv)
+          window = GameWindow()
+          window.show()
+          window.board.hard_drop()
+          window.close()
+          "
