@@ -4,7 +4,14 @@ A single-player Tetris clone built with PyQt6.
 
 ![Tetris Demo gameplay screenshot](docs/images/screenshot.png)
 
-## Running
+## Playing on Windows without installing Python
+
+Download `TetrisDemo.exe` from the [latest release](../../releases/latest) and run it —
+no Python or dependencies required. Every `v*` tag triggers
+[`.github/workflows/release.yml`](.github/workflows/release.yml), which builds the `.exe`
+with PyInstaller and attaches it to the corresponding GitHub Release.
+
+## Running from source
 
 ```bash
 pip install -r requirements.txt

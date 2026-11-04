@@ -36,6 +36,12 @@ def main():
 - **A `QMainWindow` doesn't automatically have keyboard focus just because `.show()` was called** — controls can silently do nothing until the user clicks into the window. Set `setFocusPolicy(Qt.FocusPolicy.StrongFocus)` and call `self.setFocus()` from a `showEvent` override. (CodeRabbit, tetris-demo PR #1)
 - **Qt's key-repeat re-fires `keyPressEvent` for a held key** — one-shot actions (pause, hard-drop) need to check `event.isAutoRepeat()` and ignore repeats; movement keys should keep repeating normally. (CodeRabbit, tetris-demo PR #1)
 
+## Packaging (PyInstaller)
+
+- **`pyinstaller --onefile` on a GUI app spawns two processes at runtime, not one.** The visible process (the one with a `MainWindowTitle`) is a child of a short-lived bootloader process that unpacks the bundle to a temp dir — both show up under the same name in Task Manager / `Get-Process`. Don't assume a single matching process means something's wrong; check `MainWindowHandle`/`MainWindowTitle` to find the real one. (tetris-demo, Windows `.exe` packaging)
+- **`--windowed` (a.k.a. `--noconsole`) is required for a PyQt6 GUI app** — without it, PyInstaller attaches a console window alongside the real one. PyInstaller's own `hook-PyQt6.py` and the `pyi_rth_pyqt6` runtime hook handle bundling Qt's plugins automatically; no manual `--add-data` was needed for this project's `QApplication`/`QMainWindow`/`QPainter` usage. (tetris-demo)
+- **A newly-spawned window can open on a non-primary monitor** — a screen-bounds capture of `[System.Windows.Forms.Screen]::PrimaryScreen` can miss it entirely even though the process and window are both healthy. Confirm via `GetWindowRect` on the window handle (X/Y far outside the primary screen's resolution is the tell) before assuming a launch failed; `PrintWindow` captures a specific window's content directly and works regardless of which monitor it's on. (tetris-demo, verifying the PyInstaller build)
+
 ## CI / GitHub Actions
 
 - **Set `permissions: contents: read` at the workflow's top level** unless a job genuinely needs more — the default `GITHUB_TOKEN` scope is broader than most CI jobs require. (CodeRabbit, tetris-demo PR #1)
