@@ -8,8 +8,10 @@ grounded in what actually happened in this repo's history.
 
 > **Not technical, or just want the short version?** A plain-language companion covering
 > the same ground — no code, no jargon left unexplained — is available as a
-> [PDF](docs/TRAINING.pdf), generated from `docs/generate_training_docs.py`; re-run it
-> after editing that file's `SECTIONS` to regenerate it.
+> [PDF](docs/TRAINING.pdf), generated from `docs/generate_training_docs.py`. That file's
+> `SECTIONS` is independently-written prose, not auto-extracted from this document —
+> if a process step here changes materially, update `SECTIONS` and regenerate too, or
+> the two will drift out of sync.
 
 ## 1. Create the repo, don't skip the bootstrap commit
 
@@ -219,7 +221,7 @@ this without a software background.
 
 [^repo]: **Repository ("repo")** — the project's whole folder of files plus its complete edit history, tracked by Git and hosted on GitHub.
 [^github]: **Git vs. GitHub** — Git is the version-control software that tracks every change to a project's files, on your own computer. GitHub is a website that hosts Git repositories online and adds collaboration tools (pull requests, automated checks, etc.) on top.
-[^branch]: **Branch** — a parallel, separate copy of the project's files where changes can be made without touching the main version until they're explicitly merged back in.
+[^branch]: **Branch** — an independent line of development within a repository. It lets you work on changes without touching the main version until they're explicitly merged back in. (Technically a branch is a movable pointer to a commit, not a literal copy of the files — Git computes a branch's contents from shared history rather than duplicating anything on disk — but "a place to work without affecting the main version" is the part that matters day to day.)
 [^pr]: **Pull request ("PR")** — a request, opened on GitHub, to merge one branch's changes into another. It's the mechanism that makes review possible before changes become permanent.
 [^commit]: **Commit** — a saved snapshot of a set of changes, with a short message describing what changed and why.
 [^template]: **Template repo** — a starter repository other projects copy their initial setup from (shared rules, CI config, etc.), instead of rebuilding that setup from scratch every time.

@@ -1,11 +1,18 @@
 """Generate docs/TRAINING.pdf from the SECTIONS below.
 
 A plain-language companion to ../TRAINING.md, for readers without a software
-background. Re-run this after editing SECTIONS to regenerate the output. From
-the repo root:
+background. From the repo root:
 
     pip install -r docs/requirements.txt
     python docs/generate_training_docs.py
+
+SECTIONS below is NOT generated from TRAINING.md -- it's independently
+maintained prose, rewritten for a non-technical audience rather than a
+direct conversion of the Markdown. That's deliberate (the two documents
+serve different readers), but it means there is no automatic parity check:
+if TRAINING.md's process steps change substantively, update SECTIONS to
+match and regenerate before committing, or the two can silently drift
+apart and contradict each other.
 """
 
 from pathlib import Path
@@ -65,11 +72,12 @@ SECTIONS = [
         ],
     },
     {
-        "title": "3. Building Safely, on a Side Copy",
+        "title": "3. Building Safely, on a Branch",
         "bullets": [
-            "All real work happens on a \"branch\" — a parallel, separate copy of the project.",
-            "Nothing on that copy affects the real version until it's explicitly approved and "
-            "merged in.",
+            "All real work happens on a \"branch\" — an independent line of development, not "
+            "the project's main version.",
+            "Nothing on that branch affects the real version until it's explicitly approved "
+            "and merged in.",
             "Before asking anyone to look at it, the work is tested locally first, using the "
             "exact same checks a robot reviewer will run later.",
         ],
@@ -143,7 +151,8 @@ SECTIONS = [
         "title": "Glossary",
         "bullets": [
             "Repo — the project's whole folder of files plus its complete history.",
-            "Branch — a separate, parallel copy of the project used for one change at a time.",
+            "Branch — an independent line of development, used to make one set of changes "
+            "without touching the main version until it's ready.",
             "Commit — a saved snapshot of a set of changes, with a note on what and why.",
             "Pull Request (PR) — a request to review and merge one branch's changes into another.",
             "Merge — folding an approved branch's changes into the main version for good.",
@@ -190,11 +199,14 @@ def build_pdf(output_path: Path) -> None:
 
     for section in SECTIONS:
         story.append(Paragraph(section["title"], heading_style))
-        if "image" in section and section["image"].exists():
-            img_width = 2.8 * inch
-            img_height = img_width * (530 / 523)
-            story.append(RLImage(str(section["image"]), width=img_width, height=img_height))
-            story.append(Spacer(1, 10))
+        if "image" in section:
+            if section["image"].exists():
+                img_width = 2.8 * inch
+                img_height = img_width * (530 / 523)
+                story.append(RLImage(str(section["image"]), width=img_width, height=img_height))
+                story.append(Spacer(1, 10))
+            else:
+                print(f"WARNING: image missing, skipping: {section['image']}")
         bullet_color = colors.HexColor(f"#{ACCENT}")
         items = [ListItem(Paragraph(b, body_style), bulletColor=bullet_color) for b in section["bullets"]]
         story.append(ListFlowable(items, bulletType="bullet", leftIndent=16))
