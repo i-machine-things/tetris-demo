@@ -244,6 +244,10 @@ class Board:
         self.lock()
 
     def lock(self):
+        # If the game already ended, don't let a stray call (e.g. from code
+        # that doesn't check game_over first) keep mutating a finished board.
+        if self.game_over:
+            return
         # The piece has landed — permanently stamp each of its cells onto
         # the grid.
         for x, y in self.current.occupied_cells():

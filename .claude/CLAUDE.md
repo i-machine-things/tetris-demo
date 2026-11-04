@@ -93,7 +93,7 @@ Before pushing any commit that touches core logic:
 
 Do not push if there are unhandled exceptions or broken/empty outputs.
 
-CI runs automatically on every PR (`.github/workflows/ci.yml`): lint, security scan, tests, and build. A passing PR means all four gates are green — do not merge until they are.
+CI runs automatically on every PR: three jobs defined in `.github/workflows/ci.yml` (lint & security scan, tests, build), plus CodeRabbit as a separate check. A passing PR means all four are green — do not merge until they are.
 
 ## Rule 4: Semantic Versioning
 
@@ -102,7 +102,10 @@ Tag releases using `vMAJOR.MINOR.PATCH`:
 - **MINOR** — new features that do not break existing functionality
 - **PATCH** — bug fixes, typo corrections, minor improvements
 
-There is no automated release workflow in this repo — tagging is a manual versioning convention only. PRs are gated by `.github/workflows/ci.yml` — do not tag until all CI jobs are green on main.
+Pushing a `v*` tag to `main` triggers `.github/workflows/release.yml`, which builds a
+standalone Windows executable (`TetrisDemo.exe`, via PyInstaller) on a `windows-latest`
+runner and attaches it to a GitHub Release matching the tag. PRs are gated by
+`.github/workflows/ci.yml` — do not tag until all CI jobs are green on main.
 
 **To cut a release:**
 ```bash
@@ -110,7 +113,10 @@ git tag v1.2.3
 git push origin v1.2.3
 ```
 
-**Note:** Only tag from `main`.
+**Note:** Only tag from `main`. Pushing a tag publishes a Release immediately — there is
+no rehearsal/dry-run step, so confirm the build works (`pyinstaller --onefile --windowed
+--name TetrisDemo main.py`, then actually run the resulting `.exe`) before tagging if
+`main.py` or its dependencies changed.
 
 ### Automatic Version Bump Triggers
 
@@ -142,10 +148,17 @@ Check this threshold after every merge to main. Do not wait for the user to ask.
 When a pull request is open or being prepared:
 
 - Always open PRs via `gh pr create` — never merge directly to `main` without a PR.
-- Before merging, verify CI is green: `gh pr checks <number>`. All four jobs (lint, security, tests, build) must pass.
+- Before merging, verify CI is green: `gh pr checks <number>`. Three jobs are defined in `.github/workflows/ci.yml` — Lint & Security, Tests, Build — plus CodeRabbit as a separate GitHub App check; all four must pass.
 - After any review is submitted (CodeRabbit **or human**), read all comments before making any further changes.
 - For each finding, regardless of source:
   1. If it matches an existing `.claude/CODING_NOTES.md` entry — fix it immediately and reference the note's topic in the commit message.
-  2. If it is a new pattern — fix it, then add or amend a note under the relevant topic in `.claude/CODING_NOTES.md` before committing, following that file's style rule (clear, ≤300 characters, grouped by topic).
+  2. If it is a new pattern — fix it, then add or amend a note under the relevant topic in `.claude/CODING_NOTES.md` before committing, following that file's style rule (clear and concise, grouped by topic).
 - Do not dismiss or ignore nitpicks — log them to `.claude/CODING_NOTES.md` even if not immediately actionable.
-- Only merge a PR after all blocking comments are resolved.
+- **Unresolved review threads block merging — this is checked explicitly, not inferred from the latest review summary.** The summary comment's "Findings" section only lists what that specific pass newly raised, not a running list of everything still open; reading just that section undercounts outstanding work. Before merging, query every thread's actual state:
+  ```bash
+  gh api graphql -f query='
+  query { repository(owner: "<owner>", name: "<repo>") { pullRequest(number: <n>) {
+    reviewThreads(first: 50) { nodes { isResolved
+      comments(first: 1) { nodes { databaseId path line } } } } } } }'
+  ```
+  Any thread with `isResolved: false` blocks the merge — fix it (or state why not, and leave a reply) before proceeding. CodeRabbit auto-resolves a thread itself once it detects the fix in a later commit (appends "✅ Addressed in commit `<sha>`"), so this is usually just a confirmation step, not extra manual work — but it must actually be checked, not assumed.
